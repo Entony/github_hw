@@ -1,92 +1,101 @@
-# Домашнее задание к занятию "GitLab" - Карпов Антон Юрьевич
+# Домашнее задание к занятию "Система мониторинга Zabbix" - Карпов Антон Юрьевич
 
 ### Задание 1
 
-# Что нужно сделать:
+Установите Zabbix Server с веб-интерфейсом.
 
-1. Разверните GitLab локально, используя Vagrantfile и инструкцию, описанные в этом репозитории.
-2. Создайте новый проект и пустой репозиторий в нём.
-3. Зарегистрируйте gitlab-runner для этого проекта и запустите его в режиме Docker. Раннер можно регистрировать и запускать на той же виртуальной машине, на которой запущен GitLab.
+# Процесс выполнения
 
-В качестве ответа в репозиторий шаблона с решением добавьте скриншоты с настройками раннера в проекте.
+1. Выполняя ДЗ, сверяйтесь с процессом отражённым в записи лекции.
+2. Установите PostgreSQL. Для установки достаточна та версия, что есть в системном репозитороии Debian 11.
+3. Пользуясь конфигуратором команд с официального сайта, составьте набор команд для установки последней версии Zabbix с поддержкой PostgreSQL и Apache.
+4. Выполните все необходимые команды для установки Zabbix Server и Zabbix Web Server.
+
+# Требования к результатам
+
+1. Прикрепите в файл README.md скриншот авторизации в админке.
+2. Приложите в файл README.md текст использованных команд в GitHub.
 
 ### Решение 1
 
-Скриншот с настройками раннера после его создания:
+ # Скриншот успешной авторизации
 
-![alt text](runner.png)
+ ![alt text](image-1.png)
 
+ # Последовательность команд
+
+ ```
+ # Установка PGSql 
+ - su
+ sudo apt install postgresql 
+
+#Скачивание и установка Zabbix
+ sudo s-
+ wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu24.04_all.deb
+ dpkg -i zabbix-release_latest_7.4+ubuntu24.04_all.deb
+ apt update
+
+ apt install zabbix-server-pgsql zabbix-frontend-php php8.3-pgsql zabbix-apache-conf zabbix-sql-scripts
+
+ sudo -u postgres createuser --pwprompt zabbix
+ sudo -u postgres createdb -O zabbix zabbix
+
+ zcat /usr/share/zabbix/sql-scripts/postgresql/server.sql.gz | sudo -u zabbix psql zabbix
+
+#Установка пароля к БД
+ sed -i 's/# DBPassword=/DBPassword=1234567890/g' /etc/zabbix/zabbix_server.conf
+
+#Рестарт и автозапуск сервиса
+ systemctl restart zabbix-server apache2
+ systemctl enable zabbix-server apache2
+ ```
 
 ### Задание 2
 
-# Что нужно сделать:
+Установите Zabbix Agent на два хоста.
 
-1. Запушьте репозиторий на GitLab, изменив origin. Это изучалось на занятии по Git.
-2. Создайте .gitlab-ci.yml, описав в нём все необходимые, на ваш взгляд, этапы.
+# Процесс выполнения
 
-В качестве ответа в шаблон с решением добавьте:
+1. Выполняя ДЗ, сверяйтесь с процессом отражённым в записи лекции.
+2. Установите Zabbix Agent на 2 вирт.машины, одной из них может быть ваш Zabbix Server.
+3. Добавьте Zabbix Server в список разрешенных серверов ваших Zabbix Agentов.
+4. Добавьте Zabbix Agentов в раздел Configuration > Hosts вашего Zabbix Servera.
+5. Проверьте, что в разделе Latest Data начали появляться данные с добавленных агентов.
 
-* файл gitlab-ci.yml для своего проекта или вставьте код в соответствующее поле в шаблоне;
-* скриншоты с успешно собранными сборками.
+# Требования к результатам
+
+1. Приложите в файл README.md скриншот раздела Configuration > Hosts, где видно, что агенты подключены к серверу
+2. Приложите в файл README.md скриншот лога zabbix agent, где видно, что он работает с сервером
+3. Приложите в файл README.md скриншот раздела Monitoring > Latest data для обоих хостов, где видны поступающие от агентов данные.
+4. Приложите в файл README.md текст использованных команд в GitHub
 
 ### Решение 2
 
-Код gitlab-ci.yml:
-
-```yaml
-stages:
-  - test_go
-  - test_sonar
-  - build
-
-test:
-  stage: test_go
-  image: golang:1.17
-  script: 
-   - go test .
-  tags:
-    - netology
-
-sonarqube-check:
- stage: test_sonar
- image:
-  name: sonarsource/sonar-scanner-cli
-  entrypoint: [""]
- variables:
- script:
-  - sonar-scanner -Dsonar.projectKey=gitlab_hw -Dsonar.sources=. -Dsonar.host.url=http://gitlab.localdomain:9000 -Dsonar.login=sqp_fb904e79bfa891a242a19246e51b55b2fcc90945
- tags:
-  - netology
-
-build:
-  stage: build
-  image: docker:latest
-  script:
-   - docker build .
-  tags:
-   - netology
-```
-
-
-### Результат сборки
-
-Общий:
+Cкриншот раздела Configuration > Hosts, где видно, что агенты подключены к серверу:
 
 ![alt text](image.png)
 
-Stage test_go:
+Cкриншот лога zabbix agent, где видно, что он работает с сервером:
 
-![alt text](image-6.png)
+![alt text](image-2.png)
 
-Stage sonarqube-check:
+Cкриншот раздела Monitoring > Latest data для обоих хостов, где видны поступающие от агентов данные:
 
-![alt text](image-7.png)
 ![alt text](image-3.png)
 
-Stage build:
+Tекст использованных команд:
 
-![alt text](image-8.png)
-![alt text](image-5.png)
+```
+sudo -s
+wget https://repo.zabbix.com/zabbix/7.4/release/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.4+ubuntu18.04_all.deb
+dpkg -i zabbix-release_latest_7.4+ubuntu18.04_all.deb
+apt update
+
+apt install zabbix-agent
+
+systemctl restart zabbix-agent
+systemctl enable zabbix-agent
+```
 
 
 
