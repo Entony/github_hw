@@ -67,19 +67,24 @@ build:
    - netology
 ```
 
-* Результат сборки
+
+# Результат сборки
 
 Общий:
+
 ![alt text](image.png)
 
 Stage test_go:
+
 ![alt text](image-1.png)
 
 Stage sonarqube-check:
+
 ![alt text](image-2.png)
 ![alt text](image-3.png)
 
 Stage build:
+
 ![alt text](image-4.png)
 ![alt text](image-5.png)
 
